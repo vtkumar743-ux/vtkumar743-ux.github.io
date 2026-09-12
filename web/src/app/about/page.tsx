@@ -63,6 +63,7 @@ export default function AboutPage() {
                   src="/img/portrait.png"
                   alt={site.name}
                   fill
+                  priority
                   sizes="(max-width: 1024px) 80vw, 340px"
                   className="object-cover object-[center_12%]"
                 />
