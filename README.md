@@ -75,9 +75,24 @@ company could appear is the experience section, where the name is genericised in
 
 ## Deploy
 
-Push to GitHub, import into Vercel, set the custom domain. Then update `site.url` in
-`web/src/content/site.ts` so canonical URLs, the sitemap and social cards point at the
-real domain.
+Live at **https://vtkumar743-ux.github.io**
+
+Every push to `main` triggers `.github/workflows/deploy.yml`, which lints, builds a
+static export and publishes it to GitHub Pages. Nothing to run by hand.
+
+Pages serves files, not a server, so the build is a static export
+(`output: "export"` in `web/next.config.ts`). Three consequences:
+
+- The image optimiser cannot run, so `images.unoptimized` is set and images are served
+  exactly as authored. They are already sized for delivery.
+- `robots.ts`, `sitemap.ts` and `opengraph-image.tsx` each need `export const dynamic =
+  "force-static"`, or the build fails.
+- `trailingSlash` is on so each route emits its own `index.html`. Without it Pages
+  cannot serve `/projects/conduit`.
+
+To move to a custom domain later: add it under the repository's Pages settings, then
+change `site.url` in `web/src/content/site.ts` so canonical URLs, the sitemap and the
+social card point at it.
 
 ## Still to do
 
