@@ -48,6 +48,11 @@ export const metadata: Metadata = {
     "AI agent developer",
   ],
   alternates: { canonical: site.url },
+  icons: {
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    shortcut: "/favicon.svg",
+    apple: "/favicon.svg",
+  },
   openGraph: {
     title,
     description,
@@ -77,6 +82,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
+      // The bootstrap script below adds `js` to this element before React hydrates,
+      // so its class list legitimately differs from the server HTML.
+      suppressHydrationWarning
       className={`${sora.variable} ${inter.variable} ${mono.variable} h-full antialiased`}
     >
       <head>
