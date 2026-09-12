@@ -33,29 +33,78 @@ im = im.crop((left, top, left + w, top + h)).resize((Wt, Ht), Image.LANCZOS)
 gray = im.convert("L")
 
 # ------------------------------------------------- matte: cut off the flat backdrop
-sm = gray.resize((280, 350), Image.LANCZOS)
-a = np.asarray(sm).astype(np.float32) / 255.0
-bl = np.asarray(sm.filter(ImageFilter.GaussianBlur(2))).astype(np.float32) / 255.0
-cand = (bl > 0.58) & (np.abs(a - bl) < 0.04)
+#
+# Brightness alone cannot do this. Lit skin on the ear reaches 0.81 while the backdrop
+# only spans 0.62-0.71, so any brightness threshold eats part of the ear. Local texture
+# separates them cleanly instead: the backdrop's standard deviation is 0.000 and skin's
+# is 0.03-0.05. Brightness is kept only to exclude the dark shirt, which is also flat.
+_g = np.asarray(gray).astype(np.float32) / 255.0
+_mean = np.asarray(gray.filter(ImageFilter.BoxBlur(6))).astype(np.float32) / 255.0
+_sq = np.asarray(
+    Image.fromarray(np.clip(_g ** 2 * 255, 0, 255).astype(np.uint8)).filter(ImageFilter.BoxBlur(6))
+).astype(np.float32) / 255.0
+_std = np.sqrt(np.maximum(_sq - _mean ** 2, 0))
+# Smooth the texture map, or JPEG noise spikes leave holes in the backdrop that the
+# later closing inflates into opaque blocks.
+_std = np.asarray(
+    Image.fromarray(np.clip(_std * 2000, 0, 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(4))
+).astype(np.float32) / 2000.0
+cand_full = (_mean > 0.55) & (_std < 0.020)
+cand_full = np.asarray(
+    Image.fromarray((cand_full * 255).astype(np.uint8)).filter(ImageFilter.MedianFilter(9))
+) > 127
 
+# flood from the frame edge at half resolution, so only backdrop connected to the
+# border is removed and any enclosed bright patch stays foreground
+Sw, Sh = Wt // 2, Ht // 2
+cand = np.asarray(
+    Image.fromarray((cand_full * 255).astype(np.uint8)).resize((Sw, Sh), Image.BILINEAR)
+) > 127
 seed = np.zeros_like(cand)
 seed[0, :] = cand[0, :]
 seed[-1, :] = cand[-1, :]
 seed[:, 0] = cand[:, 0]
 seed[:, -1] = cand[:, -1]
 cur = Image.fromarray((seed * 255).astype(np.uint8))
-for _ in range(240):
+for _ in range(900):
     grown = (np.asarray(cur.filter(ImageFilter.MaxFilter(3))) > 127) & cand
     if grown.sum() == (np.asarray(cur) > 127).sum():
         break
     cur = Image.fromarray((grown * 255).astype(np.uint8))
 
-alpha = Image.fromarray(((~(np.asarray(cur) > 127)) * 255).astype(np.uint8))
-alpha = alpha.resize((Wt, Ht), Image.BILINEAR).point(lambda v: 255 if v > 128 else 0)
-for _ in range(3):
-    alpha = alpha.filter(ImageFilter.MinFilter(5))          # erode past the light fringe
-alpha = alpha.filter(ImageFilter.GaussianBlur(2.0))
-A = np.clip((np.asarray(alpha).astype(np.float32) / 255.0 - 0.4) / 0.32, 0, 1)
+fg = Image.fromarray(((~(np.asarray(cur) > 127)) * 255).astype(np.uint8))
+fg = fg.resize((Wt, Ht), Image.BILINEAR).point(lambda v: 255 if v > 128 else 0)
+
+# morphological closing repairs thin incursions, such as a bite taken out of an ear
+for _ in range(2):
+    fg = fg.filter(ImageFilter.MaxFilter(7))
+for _ in range(2):
+    fg = fg.filter(ImageFilter.MinFilter(7))
+
+# Erode further than feels necessary. The closing above fills concavities along the
+# hairline by pulling in backdrop pixels, and those show as a pale rim.
+alpha = fg.filter(ImageFilter.MinFilter(5)).filter(ImageFilter.MinFilter(5))
+alpha = alpha.filter(ImageFilter.GaussianBlur(1.2))
+A = np.clip((np.asarray(alpha).astype(np.float32) / 255.0 - 0.45) / 0.25, 0, 1)
+
+# ------------------------------------------------------- edge decontamination
+# Pixels just inside the silhouette still carry some pale backdrop, which shows as a
+# white outline. Replace the boundary band with an alpha-weighted average, so its
+# colour is drawn from inside the subject rather than from the backdrop behind it.
+_src = np.asarray(im).astype(np.float32) / 255.0
+_num = np.asarray(
+    Image.fromarray(np.clip(_src * A[..., None] * 255, 0, 255).astype(np.uint8))
+    .filter(ImageFilter.GaussianBlur(11))
+).astype(np.float32) / 255.0
+_den = np.asarray(
+    Image.fromarray(np.clip(A * 255, 0, 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(11))
+).astype(np.float32) / 255.0
+_inner = _num / np.maximum(_den, 0.02)[..., None]
+_band = np.clip((0.998 - A) / 0.75, 0, 1)[..., None]        # 0 deep inside, 1 at the rim
+im = Image.fromarray(
+    (np.clip(_src * (1 - _band) + _inner * _band, 0, 1) * 255).astype(np.uint8)
+)
+gray = im.convert("L")
 
 # ------------------------------------------------------------ graded photograph
 base = ImageEnhance.Color(im).enhance(1.30)
