@@ -8,12 +8,12 @@ Recorded 2026-09-12. This supersedes `05-QUESTIONS.md`, which is now history.
 |---|---|
 | Positioning | Everything: freelance, for hire, and open to eligible full-time roles |
 | Title | Full-Stack Software Engineer · UI/UX |
-| Name | Venkat Thanmai Kumar V, displayed as "Venkat Thanmai Kumar" |
+| Name | Venkat Thanmai Kumar V. The hero frame shows just "Venkat" |
 | Email | vtkumar743@gmail.com |
 | Phone / WhatsApp | +91 88619 44492 |
 | GitHub | github.com/vtkumar743-ux |
 | Projects | Drop Evol. Keep Conduit, TaskFlow, Forge, Ledger, CRM |
-| Portrait | Studio headshot from Downloads, rendered as a drawn screen-print |
+| Portrait | Studio headshot from Downloads, rendered as a painted illustration |
 | Design | Replicate the reference structure, but change the arrangement, colour and UI so it is not a copy |
 
 ## Taken from the CV (`Venkat_T.pdf`, found in Downloads)
@@ -33,9 +33,9 @@ Recorded 2026-09-12. This supersedes `05-QUESTIONS.md`, which is now history.
    One string in `web/src/content/about.ts`. Your instruction was no company details
    anywhere, but an unnamed employer is unusual on a job-seeking portfolio, so this is
    your call.
-2. **The downloadable CV still names the employer.** It is served verbatim at
-   `/resume.pdf`. If that conflicts with the rule, either redact the PDF or delete it
-   and drop the two "Download CV" links.
+2. **The CV has been removed** at your request. No PDF is served and there are no
+   download links. The employer name now appears nowhere on the site except the
+   genericised experience label above.
 3. **Certifications are placeholders** derived from the CV's single entry, ".NET Full
    Stack Development". Replace the list in `content/about.ts` with what you actually hold.
 4. **Statistics**: five platforms shipped, twenty-plus technologies, three core stacks.
@@ -55,12 +55,12 @@ Recorded 2026-09-12. This supersedes `05-QUESTIONS.md`, which is now history.
   cyan. Ground is `#0F1012` rather than `#111111`.
 - **Type**: Sora, Inter and JetBrains Mono, replacing Poppins, Inter and a pixel font.
   Figures are set in mono rather than pixel type, which reads as engineering.
-- **Hero**: an asymmetric two-column layout with text left and portrait right, instead
-  of the reference's single centred phone-bezel card.
-- **Texture**: a masked hairline grid plus grain, instead of grain alone.
+- **Hero**: a centred device frame, like the reference, since that was the part you
+  liked. The portrait inside is an illustration derived from your own photograph
+  rather than a drawn character.
+- **Texture**: a starfield plus a masked hairline grid and grain.
 - **Projects**: the sticky stack is kept, but each card gains an index, a year, a
   private-repository marker and a stack chip row.
 - **Skills**: a four-group matrix replaces the reference's six tool tiles.
 - **Sections dropped**: awards, testimonials, Instagram strip, blog.
-- **Sections added**: education, a private-repository explanation in the FAQ, and a
-  CV download.
+- **Sections added**: education, and a private-repository explanation in the FAQ.

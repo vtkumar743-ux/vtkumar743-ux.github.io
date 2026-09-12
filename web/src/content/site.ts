@@ -13,7 +13,6 @@ export const site = {
   github: "https://github.com/vtkumar743-ux",
   linkedin: "https://linkedin.com/in/venkatthanmai",
   url: "https://venkat.dev", // TODO: replace with the real domain once bought
-  resume: "/resume.pdf",
 
   headline: "I build production software end to end, from the data model to the last pixel.",
   lede:

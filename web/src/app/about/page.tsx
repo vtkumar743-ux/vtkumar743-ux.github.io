@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { site } from "@/content/site";
-import { Download } from "lucide-react";
 import { education, languages, skillGroups, certifications } from "@/content/about";
 import { Backdrop, Button, Chip, SectionHeading, Eyebrow } from "@/components/ui";
 
@@ -109,7 +108,7 @@ export default function AboutPage() {
             ))}
           </div>
 
-          <div className="mt-16 grid gap-12 lg:grid-cols-3">
+          <div className="mt-16 grid gap-12 lg:grid-cols-2">
             <div className="reveal">
               <h3 className="font-mono text-[0.68rem] uppercase tracking-[0.2em] text-muted-2">
                 Education
@@ -134,24 +133,6 @@ export default function AboutPage() {
                   </li>
                 ))}
               </ul>
-            </div>
-            <div className="reveal">
-              <h3 className="font-mono text-[0.68rem] uppercase tracking-[0.2em] text-muted-2">
-                Curriculum vitae
-              </h3>
-              <p className="mt-5 text-sm leading-relaxed text-muted">
-                The one-page version, with the full role history and contact details.
-              </p>
-              <a
-                href={site.resume}
-                download
-                className="group mt-5 inline-flex items-center gap-3 rounded-full border border-line bg-white/[0.03] py-2.5 pl-5 pr-2.5 text-sm font-medium transition-colors duration-300 hover:border-accent/50 hover:text-accent"
-              >
-                Download CV
-                <span className="grid h-8 w-8 place-items-center rounded-full border border-line transition-colors duration-300 group-hover:border-accent/50">
-                  <Download size={14} />
-                </span>
-              </a>
             </div>
           </div>
         </div>

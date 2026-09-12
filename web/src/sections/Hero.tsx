@@ -59,11 +59,8 @@ export default function Hero() {
                 </p>
 
                 <p className="absolute inset-x-6 bottom-6 text-right font-display leading-[0.92] tracking-[-0.04em] sm:inset-x-8 sm:bottom-8">
-                  <span className="block pb-[0.05em] text-[clamp(2.4rem,8.5vw,4.2rem)] font-bold">
+                  <span className="block pb-[0.05em] text-[clamp(3.2rem,11vw,5.4rem)] font-bold">
                     Venkat
-                  </span>
-                  <span className="block text-[clamp(2rem,7vw,3.4rem)] font-light">
-                    Thanmai Kumar
                   </span>
                 </p>
               </div>

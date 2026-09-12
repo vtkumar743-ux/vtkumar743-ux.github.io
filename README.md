@@ -49,7 +49,11 @@ Two accents: periwinkle `#7B8CFF` for interaction, amber `#FFC46B` for data.
 Sora for display, Inter for body, JetBrains Mono for labels and figures.
 
 The signature interactions are a sticky project stack, where cards pile up as you
-scroll, and a screen-print portrait treatment generated from a studio photo.
+scroll, and a centred device frame holding an illustrated portrait.
+
+The portrait is generated from a studio photograph by a script that flattens broad
+areas into paint regions while blending the original back wherever local contrast is
+high, so the eyes, mouth and hair survive the stylisation.
 
 ## Project cover art
 
@@ -59,9 +63,9 @@ clients, so no real interface, logo or customer data is ever shown.
 
 ## Anonymisation rule
 
-No employer is named in any project title, description, slug, URL or image. An
-application is named for what it does. The one place a company could appear is the
-experience section, where the name is currently genericised in
+No employer is named anywhere: not in a project title, description, slug, URL or
+image, and no CV is served. An application is named for what it does. The one place a
+company could appear is the experience section, where the name is genericised in
 `web/src/content/about.ts` — change that single string if you decide otherwise.
 
 ## Deploy
@@ -75,5 +79,17 @@ real domain.
 - Point `site.url` at the real domain.
 - Decide how the contact form should deliver. It currently composes a `mailto:`; swap
   `onSubmit` in `sections/Contact.tsx` for a POST once you pick a provider.
-- Add real certifications to `content/about.ts` — the current list is a placeholder
-  built from the CV.
+- Add real certifications to `content/about.ts` — the current list is a placeholder.
+- Review the pricing figures in `content/services.ts`; they are market estimates, not
+  your numbers.
+
+## Regenerating the portrait
+
+```bash
+python web/scripts/portrait.py     # needs pillow + numpy
+```
+It reads the studio photograph, cuts the subject off the backdrop, flattens broad
+areas into paint regions, blends the photograph back where local contrast is high so
+the features survive, lays down soft ink lines, and writes
+`web/public/img/portrait.png`. Edit the source path at the top to use a different
+photo.

@@ -67,13 +67,6 @@ export default function Footer() {
             <Link href="/#contact" className="text-sm text-muted transition-colors hover:text-text">
               Contact
             </Link>
-            <a
-              href={site.resume}
-              download
-              className="text-sm text-muted transition-colors hover:text-text"
-            >
-              Download CV
-            </a>
           </nav>
 
           <div className="flex flex-col gap-3">
