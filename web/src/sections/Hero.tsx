@@ -42,7 +42,7 @@ export default function Hero() {
                   className="absolute inset-0 bg-[radial-gradient(70%_45%_at_50%_100%,var(--color-accent)_0%,transparent_70%)] opacity-[0.16]"
                 />
                 <Image
-                  src="/img/portrait-art.png"
+                  src="/img/portrait-cartoon.png"
                   alt={`${site.name}, ${site.role}`}
                   fill
                   priority
