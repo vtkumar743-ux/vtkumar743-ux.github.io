@@ -17,7 +17,7 @@ export default function Hero() {
       {/* ghost wordmark */}
       <span
         aria-hidden
-        className="pointer-events-none absolute left-1/2 top-[38%] -z-10 -translate-x-1/2 whitespace-nowrap font-display text-[20vw] font-bold leading-none tracking-tighter text-white/[0.022]"
+        className="pointer-events-none absolute inset-x-0 bottom-2 -z-10 text-center font-display text-[19vw] font-bold leading-[0.8] tracking-tighter text-white/[0.018]"
       >
         venkat
       </span>
@@ -141,15 +141,6 @@ export default function Hero() {
                 </div>
               </div>
 
-              {/* floating stat */}
-              <div className="absolute -bottom-6 -left-4 hidden rounded-2xl border border-line bg-surface/90 px-5 py-3.5 shadow-card backdrop-blur-md sm:block">
-                <p className="font-mono text-[0.62rem] uppercase tracking-[0.18em] text-muted-2">
-                  Shipped
-                </p>
-                <p className="font-display text-2xl font-semibold leading-none text-text">
-                  5<span className="text-accent"> platforms</span>
-                </p>
-              </div>
             </div>
           </div>
         </div>
