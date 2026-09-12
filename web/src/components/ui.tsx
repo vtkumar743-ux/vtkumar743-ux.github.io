@@ -83,7 +83,7 @@ export function SectionHeading({
   light,
   bold,
   sub,
-  align = "left",
+  align = "center",
 }: {
   eyebrow?: string;
   light: string;
@@ -99,11 +99,20 @@ export function SectionHeading({
       )}
     >
       {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
-      <h2 className="font-display text-[clamp(2.1rem,6.6vw,3.5rem)] leading-[1.04] tracking-[-0.035em]">
+      <h2 className="font-display text-[clamp(2.2rem,7vw,3.8rem)] leading-[1.02] tracking-[-0.04em]">
         <span className="font-light text-muted">{light} </span>
         <span className="font-semibold text-text">{bold}</span>
       </h2>
-      {sub && <p className="max-w-lede text-pretty text-[0.95rem] leading-[1.7] text-muted">{sub}</p>}
+      {sub && (
+        <p
+          className={cx(
+            "max-w-lede text-pretty text-[0.95rem] leading-[1.7] text-muted",
+            align === "center" && "mx-auto",
+          )}
+        >
+          {sub}
+        </p>
+      )}
     </div>
   );
 }
@@ -123,14 +132,57 @@ export function Chip({ children }: { children: ReactNode }) {
 export function Backdrop({ glow = true }: { glow?: boolean }) {
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+      <div className="absolute inset-0 starfield opacity-70" />
       <div className="absolute inset-0 gridlines" />
-      <div className="absolute inset-0 grain opacity-[0.35]" />
+      <div className="absolute inset-0 grain opacity-[0.3]" />
       {glow && (
         <>
-          <div className="absolute -top-40 left-1/2 h-[34rem] w-[34rem] -translate-x-1/2 rounded-full bg-accent/[0.10] blur-[150px]" />
-          <div className="absolute -bottom-40 right-[8%] h-[26rem] w-[26rem] rounded-full bg-accent-2/[0.05] blur-[150px]" />
+          <div className="absolute -top-48 left-1/2 h-[38rem] w-[38rem] -translate-x-1/2 rounded-full bg-accent/[0.11] blur-[160px]" />
+          <div className="absolute -bottom-40 right-[6%] h-[26rem] w-[26rem] rounded-full bg-accent-2/[0.05] blur-[150px]" />
         </>
       )}
+    </div>
+  );
+}
+
+/* --------------------------------------------------------- Segmented tabs */
+
+export function TabTrack({
+  items,
+  active,
+  onSelect,
+  idPrefix,
+  label,
+}: {
+  items: readonly { key: string; tab: string }[];
+  active: number;
+  onSelect: (i: number) => void;
+  idPrefix: string;
+  label: string;
+}) {
+  return (
+    <div className="flex justify-center">
+      <div className="tab-track max-w-full flex-wrap justify-center" role="tablist" aria-label={label}>
+        {items.map((it, i) => (
+          <button
+            key={it.key}
+            type="button"
+            role="tab"
+            id={`${idPrefix}-tab-${it.key}`}
+            aria-selected={i === active}
+            aria-controls={`${idPrefix}-panel-${it.key}`}
+            onClick={() => onSelect(i)}
+            className={cx(
+              "rounded-full px-5 py-2.5 text-sm font-medium transition-colors duration-300",
+              i === active
+                ? "bg-accent text-bg shadow-[0_6px_20px_-8px_var(--color-accent)]"
+                : "text-muted hover:text-text",
+            )}
+          >
+            {it.tab}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

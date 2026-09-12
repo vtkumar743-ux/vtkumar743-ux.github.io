@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Check } from "lucide-react";
 import { pricing } from "@/content/services";
-import { SectionHeading, Button, cx } from "@/components/ui";
+import { SectionHeading, Button, TabTrack } from "@/components/ui";
 
 export default function Pricing() {
   const [active, setActive] = useState(0);
@@ -21,26 +21,14 @@ export default function Pricing() {
           />
         </div>
 
-        <div className="mt-12 flex flex-wrap gap-2" role="tablist" aria-label="Pricing packages">
-          {pricing.map((pk, i) => (
-            <button
-              key={pk.key}
-              type="button"
-              role="tab"
-              id={`pr-tab-${pk.key}`}
-              aria-selected={i === active}
-              aria-controls={`pr-panel-${pk.key}`}
-              onClick={() => setActive(i)}
-              className={cx(
-                "rounded-full border px-4 py-2 text-sm transition-colors duration-300",
-                i === active
-                  ? "border-accent bg-accent text-bg"
-                  : "border-line bg-white/[0.03] text-muted hover:border-accent/40 hover:text-text",
-              )}
-            >
-              {pk.tab}
-            </button>
-          ))}
+        <div className="mt-12">
+          <TabTrack
+            items={pricing}
+            active={active}
+            onSelect={setActive}
+            idPrefix="pr"
+            label="Pricing packages"
+          />
         </div>
 
         <div

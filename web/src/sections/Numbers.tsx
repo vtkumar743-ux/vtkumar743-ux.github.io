@@ -14,26 +14,39 @@ export default function Numbers() {
           />
         </div>
 
-        {/* asymmetric bento — three stats over a four-column skill matrix */}
+        {/* bento — the middle tile is filled with the accent so the row has a focal point */}
         <div className="mt-14 grid gap-4 sm:grid-cols-3">
-          {stats.map((s, i) => (
-            <div
-              key={s.label}
-              className="reveal flex flex-col justify-between rounded-card border border-line bg-surface p-7 shadow-card"
-              style={{ transitionDelay: `${i * 70}ms` }}
-            >
-              <div>
-                <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-                <h3 className="mt-4 font-display text-lg font-semibold leading-snug text-text">
-                  {s.label}
-                </h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-muted">{s.note}</p>
+          {stats.map((s, i) => {
+            const filled = i === 1;
+            return (
+              <div
+                key={s.label}
+                className={
+                  filled
+                    ? "reveal flex flex-col justify-between rounded-card bg-accent p-7 text-bg shadow-[0_24px_60px_-24px_var(--color-accent)]"
+                    : "reveal flex flex-col justify-between rounded-card border border-line bg-surface p-7 shadow-card"
+                }
+                style={{ transitionDelay: `${i * 70}ms` }}
+              >
+                <div>
+                  <span
+                    className={`block h-1.5 w-1.5 rounded-full ${filled ? "bg-bg/60" : "bg-accent"}`}
+                  />
+                  <h3 className="mt-4 font-display text-lg font-semibold leading-snug">
+                    {s.label}
+                  </h3>
+                  <p
+                    className={`mt-1.5 text-sm leading-relaxed ${filled ? "text-bg/70" : "text-muted"}`}
+                  >
+                    {s.note}
+                  </p>
+                </div>
+                <p className="mt-10 text-right font-mono text-[clamp(3rem,9vw,4.5rem)] font-bold leading-[0.85] tracking-tighter">
+                  {s.value}
+                </p>
               </div>
-              <p className="mt-10 font-mono text-[clamp(3rem,9vw,4.5rem)] font-bold leading-[0.85] tracking-tighter text-text">
-                {s.value}
-              </p>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">

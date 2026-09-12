@@ -60,11 +60,11 @@ export default function AboutPage() {
             <div className="overflow-hidden rounded-[32px] border border-line bg-gradient-to-b from-surface to-bg-2 shadow-lift">
               <div className="relative aspect-[4/5]">
                 <Image
-                  src="/img/portrait-sketch.png"
+                  src="/img/portrait.png"
                   alt={site.name}
                   fill
                   sizes="(max-width: 1024px) 80vw, 340px"
-                  className="object-cover object-[center_18%]"
+                  className="object-cover object-[center_12%]"
                 />
               </div>
             </div>

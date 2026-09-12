@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { services } from "@/content/services";
-import { SectionHeading, Button, cx } from "@/components/ui";
+import { SectionHeading, Button, TabTrack } from "@/components/ui";
 
 export default function Services() {
   const [active, setActive] = useState(0);
@@ -20,26 +20,14 @@ export default function Services() {
           />
         </div>
 
-        <div className="mt-12 flex flex-wrap gap-2" role="tablist" aria-label="Services">
-          {services.map((sv, i) => (
-            <button
-              key={sv.key}
-              type="button"
-              role="tab"
-              id={`svc-tab-${sv.key}`}
-              aria-selected={i === active}
-              aria-controls={`svc-panel-${sv.key}`}
-              onClick={() => setActive(i)}
-              className={cx(
-                "rounded-full border px-4 py-2 text-sm transition-colors duration-300",
-                i === active
-                  ? "border-accent bg-accent text-bg"
-                  : "border-line bg-white/[0.03] text-muted hover:border-accent/40 hover:text-text",
-              )}
-            >
-              {sv.tab}
-            </button>
-          ))}
+        <div className="mt-12">
+          <TabTrack
+            items={services}
+            active={active}
+            onSelect={setActive}
+            idPrefix="svc"
+            label="Services"
+          />
         </div>
 
         <div

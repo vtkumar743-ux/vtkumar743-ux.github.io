@@ -2,17 +2,16 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Menu, X } from "lucide-react";
-import { WhatsappIcon } from "@/components/BrandIcons";
+import { Menu, X, Send } from "lucide-react";
 import { nav, site } from "@/content/site";
 import { cx } from "./ui";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
-  const [solid, setSolid] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setSolid(window.scrollY > 24);
+    const onScroll = () => setScrolled(window.scrollY > 24);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -26,69 +25,84 @@ export default function Header() {
   }, [open]);
 
   return (
-    <header
-      className={cx(
-        "fixed inset-x-0 top-0 z-50 transition-colors duration-300",
-        solid ? "border-b border-line bg-bg/80 backdrop-blur-xl" : "border-b border-transparent",
-      )}
-      style={{ height: "var(--header-h)" }}
-    >
-      <div className="shell flex h-full items-center justify-between gap-6">
+    <header className="fixed inset-x-0 top-0 z-50">
+      {/* masks whatever scrolls underneath so the floating pill stays readable */}
+      <div
+        aria-hidden
+        className={cx(
+          "pointer-events-none absolute inset-x-0 top-0 -z-10 transition-opacity duration-300",
+          scrolled ? "opacity-100" : "opacity-0",
+        )}
+        style={{
+          height: "calc(var(--header-h) + 28px)",
+          background:
+            "linear-gradient(to bottom, var(--color-bg) 0%, color-mix(in oklab, var(--color-bg) 92%, transparent) 62%, transparent 100%)",
+          backdropFilter: "blur(6px)",
+        }}
+      />
+
+      {/* wordmark sits above the nav pill */}
+      <div
+        className={cx(
+          "flex justify-center transition-all duration-300",
+          scrolled ? "pt-2.5 pb-1" : "pt-5 pb-2",
+        )}
+      >
         <Link
           href="/"
-          className="font-display text-lg font-semibold tracking-tight"
           onClick={() => setOpen(false)}
+          className="font-display text-lg font-bold tracking-tight"
         >
           <span className="text-accent">.</span>
           <span>venkat</span>
         </Link>
+      </div>
 
-        <nav aria-label="Primary" className="hidden md:block">
-          <ul className="flex items-center gap-1">
+      <div className="shell flex justify-center">
+        <nav
+          aria-label="Primary"
+          className="flex w-full max-w-[660px] items-center justify-between gap-2 rounded-full border border-line bg-surface/80 px-2 py-2 shadow-lift backdrop-blur-xl"
+        >
+          <ul className="ml-2 hidden items-center gap-1 md:flex">
             {nav.map((n) => (
               <li key={n.label}>
                 <Link
                   href={n.href}
-                  className="rounded-full px-3.5 py-2 text-sm text-muted transition-colors duration-200 hover:bg-white/[0.05] hover:text-text"
+                  className="rounded-full px-3.5 py-2 text-sm text-muted transition-colors duration-200 hover:bg-white/[0.06] hover:text-text"
                 >
                   {n.label}
                 </Link>
               </li>
             ))}
           </ul>
-        </nav>
 
-        <div className="flex items-center gap-2">
-          <Link
-            href="/#contact"
-            className="hidden rounded-full border border-line bg-white/[0.03] px-4 py-2 text-sm font-medium transition-colors duration-300 hover:border-accent/50 hover:text-accent sm:inline-block"
-          >
-            Contact
-          </Link>
-          <a
-            href={site.whatsapp}
-            target="_blank"
-            rel="noreferrer noopener"
-            aria-label="Message me on WhatsApp"
-            className="grid h-9 w-9 place-items-center rounded-full bg-accent text-bg transition-colors duration-300 hover:bg-text"
-          >
-            <WhatsappIcon size={15} />
-          </a>
           <button
             type="button"
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
-            className="grid h-9 w-9 place-items-center rounded-full border border-line text-text md:hidden"
+            className="ml-1 grid h-10 w-10 place-items-center rounded-full text-text transition-colors hover:bg-white/[0.06] md:hidden"
           >
-            {open ? <X size={16} /> : <Menu size={16} />}
+            {open ? <X size={18} /> : <Menu size={18} />}
           </button>
-        </div>
+
+          <Link
+            href="/#contact"
+            onClick={() => setOpen(false)}
+            className="group inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-bg transition-colors duration-300 hover:bg-text"
+          >
+            Contact
+            <Send
+              size={14}
+              className="transition-transform duration-300 motion-safe:group-hover:translate-x-0.5"
+            />
+          </Link>
+        </nav>
       </div>
 
       {open && (
-        <div className="fixed inset-x-0 top-[var(--header-h)] bottom-0 z-40 border-t border-line bg-bg/97 backdrop-blur-xl md:hidden">
-          <nav aria-label="Mobile" className="shell flex flex-col gap-1 pt-6">
+        <div className="fixed inset-x-0 top-[var(--header-h)] bottom-0 z-40 bg-bg/97 backdrop-blur-xl md:hidden">
+          <nav aria-label="Mobile" className="shell flex flex-col gap-1 pt-8">
             {nav.map((n) => (
               <Link
                 key={n.label}
@@ -99,13 +113,14 @@ export default function Header() {
                 {n.label}
               </Link>
             ))}
-            <Link
-              href="/#contact"
-              onClick={() => setOpen(false)}
-              className="mt-6 rounded-full bg-accent px-6 py-3 text-center font-medium text-bg"
+            <a
+              href={site.whatsapp}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="mt-6 rounded-full border border-line py-3 text-center text-sm font-medium text-text"
             >
-              Start a conversation
-            </Link>
+              Message on WhatsApp
+            </a>
           </nav>
         </div>
       )}
