@@ -88,13 +88,26 @@ real domain.
 - Review the pricing figures in `content/services.ts`; they are market estimates, not
   your numbers.
 
-## Regenerating the portrait
+## The portrait
+
+`web/public/img/portrait-illustration.png` is an illustrated portrait supplied as a
+JPEG and prepared for the site by:
 
 ```bash
-python web/scripts/portrait.py     # needs pillow + numpy
+cd web && python scripts/portrait.py      # needs opencv-python-headless, pillow, numpy
 ```
-It reads the studio photograph, cuts the subject off the backdrop, flattens broad
-areas into paint regions, blends the photograph back where local contrast is high so
-the features survive, lays down soft ink lines, and writes
-`web/public/img/portrait.png`. Edit the source path at the top to use a different
-photo.
+
+It cuts the subject off the backdrop and writes a transparent PNG. Two details matter:
+
+- **The cutout keys on saturation, not brightness or texture.** Backdrop and the soft
+  glow drawn around the subject both sit at 0.106 saturation, while skin is 0.47-0.60
+  and the shirt 0.52. Brightness fails because lit skin is brighter than the backdrop;
+  texture fails because the glow's gradient reads as variation and leaves a halo.
+- **Colour is flooded outward into the transparent area before saving.** Next
+  re-encodes this as lossy WebP, which compresses RGB independently of alpha, so
+  whatever sits in the transparent region bleeds into the edge on decode. Without the
+  flood the halo reappears in the browser even when the PNG on disk is clean.
+
+If you regenerate an image and the old one still shows, clear **`.next/dev/cache/images`**
+and restart the dev server. That is where Next 16 caches optimised images in
+development; `.next/cache/images` is a different directory and clearing it does nothing.

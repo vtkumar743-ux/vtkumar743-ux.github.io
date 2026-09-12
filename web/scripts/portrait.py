@@ -1,171 +1,102 @@
-"""Cartoon portrait.
+"""Prepare the portrait for the site.
 
-Flattens the photograph into paint regions and lays down ink lines, while blending the
-original back wherever local contrast is high so the eyes, mouth and hair survive.
+Takes the supplied illustrated portrait, cuts it off its flat backdrop, and writes a
+transparent PNG at the size the hero frame uses.
 
-Two things this deliberately does NOT do, both tried and reverted:
-  * Cel-banding the luminance. The studio key light is strong on one side of the face,
-    and banding turns it into a hard-edged pale patch on the nose and cheek.
-  * Flattening the broad lighting toward a local mean. It removes the blotch but also
-    removes all the form, leaving a washed-out face.
+The key is texture, not brightness. The illustration's backdrop measures ~0.002 local
+standard deviation because it is flat fill, while the face measures 0.047 and the hair
+0.083. Brightness is kept only as a second test, to exclude the dark shirt, which is
+also smooth. Only backdrop connected to the frame edge is removed, so any enclosed
+light area inside the subject survives.
 
     python scripts/portrait.py
 """
+import cv2
 import numpy as np
-from PIL import Image, ImageFilter, ImageEnhance
+from PIL import Image
 
-SRC = r"C:\Users\Venkat\Downloads\WhatsApp Image 2026-09-12 at 4.19.32 PM.jpeg"
-OUT = r"C:\VSC- AI\Venkat\web\public\img\portrait-cartoon.png"
-Wt, Ht = 1100, 1375
+SRC = r"C:\Users\Venkat\Downloads\WhatsApp Image 2026-09-12 at 6.15.15 PM.jpeg"
+OUT = r"C:\VSC- AI\Venkat\web\public\img\portrait-illustration.png"
+OUT_W, OUT_H = 1100, 1375                 # 4:5, matching the hero frame
+SCALE = 2                                 # work large, downsample for clean edges
+W, H = OUT_W * SCALE, OUT_H * SCALE
 
 # ------------------------------------------------------------------ load and crop
-im = Image.open(SRC).convert("RGB")
-W0, H0 = im.size
-w, h = W0, int(W0 / (Wt / Ht))
+src = Image.open(SRC).convert("RGB")
+W0, H0 = src.size
+target = OUT_W / OUT_H
+w, h = W0, int(W0 / target)
 if h > H0:
     h = H0
-    w = int(H0 * (Wt / Ht))
+    w = int(H0 * target)
 left = (W0 - w) // 2
-top = max(0, int(H0 * 0.01))
-if top + h > H0:
-    top = H0 - h
-im = im.crop((left, top, left + w, top + h)).resize((Wt, Ht), Image.LANCZOS)
-gray = im.convert("L")
+top = 0                                    # crop from the top; the head sits there
+src = src.crop((left, top, left + w, top + h)).resize((W, H), Image.LANCZOS)
+img = np.asarray(src)
+gy = np.asarray(src.convert("L")).astype(np.float32) / 255.0
 
-# ------------------------------------------------- matte: cut off the flat backdrop
+# ------------------------------------------------------ matte, keyed on saturation
 #
-# Brightness alone cannot do this. Lit skin on the ear reaches 0.81 while the backdrop
-# only spans 0.62-0.71, so any brightness threshold eats part of the ear. Local texture
-# separates them cleanly instead: the backdrop's standard deviation is 0.000 and skin's
-# is 0.03-0.05. Brightness is kept only to exclude the dark shirt, which is also flat.
-_g = np.asarray(gray).astype(np.float32) / 255.0
-_mean = np.asarray(gray.filter(ImageFilter.BoxBlur(6))).astype(np.float32) / 255.0
-_sq = np.asarray(
-    Image.fromarray(np.clip(_g ** 2 * 255, 0, 255).astype(np.uint8)).filter(ImageFilter.BoxBlur(6))
-).astype(np.float32) / 255.0
-_std = np.sqrt(np.maximum(_sq - _mean ** 2, 0))
-# Smooth the texture map, or JPEG noise spikes leave holes in the backdrop that the
-# later closing inflates into opaque blocks.
-_std = np.asarray(
-    Image.fromarray(np.clip(_std * 2000, 0, 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(4))
-).astype(np.float32) / 2000.0
-cand_full = (_mean > 0.55) & (_std < 0.020)
-cand_full = np.asarray(
-    Image.fromarray((cand_full * 255).astype(np.uint8)).filter(ImageFilter.MedianFilter(9))
-) > 127
+# Texture nearly works but not quite: the illustration is drawn with a soft outer
+# glow whose gradient reads as slight variation, so it survives a texture key and
+# shows as a halo on a dark page. Saturation separates them outright. Measured on
+# this image: backdrop and glow both sit at 0.106 saturation and 0.82 value, while
+# skin is 0.47-0.60, the shirt 0.52, and hair is dark. So "neutral and light" is
+# the backdrop and nothing else in the picture matches it.
+hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+sat = hsv[..., 1].astype(np.float32) / 255.0
+val = hsv[..., 2].astype(np.float32) / 255.0
+cand = (((sat < 0.20) & (val > 0.65)).astype(np.uint8)) * 255
+cand = cv2.medianBlur(cand, 7 * SCALE + 1) > 127
 
-# flood from the frame edge at half resolution, so only backdrop connected to the
-# border is removed and any enclosed bright patch stays foreground
-Sw, Sh = Wt // 2, Ht // 2
-cand = np.asarray(
-    Image.fromarray((cand_full * 255).astype(np.uint8)).resize((Sw, Sh), Image.BILINEAR)
-) > 127
-seed = np.zeros_like(cand)
-seed[0, :] = cand[0, :]
-seed[-1, :] = cand[-1, :]
-seed[:, 0] = cand[:, 0]
-seed[:, -1] = cand[:, -1]
-cur = Image.fromarray((seed * 255).astype(np.uint8))
-for _ in range(900):
-    grown = (np.asarray(cur.filter(ImageFilter.MaxFilter(3))) > 127) & cand
-    if grown.sum() == (np.asarray(cur) > 127).sum():
-        break
-    cur = Image.fromarray((grown * 255).astype(np.uint8))
+# keep only the backdrop that touches the frame edge, so light areas enclosed by the
+# subject (eye whites, teeth) stay foreground
+_, lab = cv2.connectedComponents(cand.astype(np.uint8))
+border = (set(lab[0, :]) | set(lab[-1, :]) | set(lab[:, 0]) | set(lab[:, -1])) - {0}
+fg = (~np.isin(lab, list(border))).astype(np.uint8) * 255
 
-fg = Image.fromarray(((~(np.asarray(cur) > 127)) * 255).astype(np.uint8))
-fg = fg.resize((Wt, Ht), Image.BILINEAR).point(lambda v: 255 if v > 128 else 0)
+ell = lambda s: cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (s, s))
+fg = cv2.morphologyEx(fg, cv2.MORPH_CLOSE, ell(7 * SCALE + 1))   # repair thin bites
+fg = cv2.morphologyEx(fg, cv2.MORPH_OPEN, ell(5 * SCALE + 1))    # drop stray specks
+fg = cv2.erode(fg, ell(2 * SCALE + 1))                           # just off the boundary
+fg = cv2.GaussianBlur(fg, (0, 0), 1.4 * SCALE)
+A = np.clip((fg.astype(np.float32) / 255.0 - 0.45) / 0.28, 0, 1)
 
-# morphological closing repairs thin incursions, such as a bite taken out of an ear
-for _ in range(2):
-    fg = fg.filter(ImageFilter.MaxFilter(7))
-for _ in range(2):
-    fg = fg.filter(ImageFilter.MinFilter(7))
+# ------------------------------------------------------- repaint the drawn outline
+# The illustration has a pale outline drawn around the subject. Measured across the
+# edge it is about 9px of FULLY OPAQUE cream at delivery size, so keying the repaint
+# on alpha does nothing: alpha is already 255 there. Key on distance from the
+# silhouette edge instead, and fill from colours sampled well inside the subject.
+RIM = 7 * SCALE                                    # only the anti-aliased seam is left
+fgb = (A > 0.5).astype(np.uint8)
+dist = cv2.distanceTransform(fgb, cv2.DIST_L2, 5)
 
-# Erode further than feels necessary. The closing above fills concavities along the
-# hairline by pulling in backdrop pixels, and those show as a pale rim.
-alpha = fg.filter(ImageFilter.MinFilter(5)).filter(ImageFilter.MinFilter(5))
-alpha = alpha.filter(ImageFilter.GaussianBlur(1.2))
-A = np.clip((np.asarray(alpha).astype(np.float32) / 255.0 - 0.45) / 0.25, 0, 1)
+deep = (dist > RIM).astype(np.float32)             # only sample from real interior
+num = cv2.GaussianBlur(img.astype(np.float32) * deep[..., None], (0, 0), RIM * 2.0)
+den = cv2.GaussianBlur(deep, (0, 0), RIM * 2.0)
+inner = num / np.maximum(den, 0.03)[..., None]
 
-# ------------------------------------------------------- edge decontamination
-# Pixels just inside the silhouette still carry some pale backdrop, which shows as a
-# white outline. Replace the boundary band with an alpha-weighted average, so its
-# colour is drawn from inside the subject rather than from the backdrop behind it.
-_src = np.asarray(im).astype(np.float32) / 255.0
-_num = np.asarray(
-    Image.fromarray(np.clip(_src * A[..., None] * 255, 0, 255).astype(np.uint8))
-    .filter(ImageFilter.GaussianBlur(11))
-).astype(np.float32) / 255.0
-_den = np.asarray(
-    Image.fromarray(np.clip(A * 255, 0, 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(11))
-).astype(np.float32) / 255.0
-_inner = _num / np.maximum(_den, 0.02)[..., None]
-_band = np.clip((0.998 - A) / 0.75, 0, 1)[..., None]        # 0 deep inside, 1 at the rim
-im = Image.fromarray(
-    (np.clip(_src * (1 - _band) + _inner * _band, 0, 1) * 255).astype(np.uint8)
-)
-gray = im.convert("L")
+band = np.clip((RIM - dist) / RIM, 0, 1)[..., None]
+rgb = np.clip(img * (1 - band) + inner * band, 0, 255)
 
-# ------------------------------------------------------------ graded photograph
-base = ImageEnhance.Color(im).enhance(1.30)
-B = np.asarray(base).astype(np.float32) / 255.0
-B = np.power(np.clip(B, 0, 1), 0.88)
-B = np.clip(0.5 + (B - 0.5) * 1.12, 0, 1)
+# ----------------------------------------------------- bleed colour outward
+# Critical for delivery, not for the file itself. Next re-encodes this as lossy WebP,
+# which compresses RGB independently of alpha. Whatever colour sits in the fully
+# transparent region therefore bleeds into the semi-transparent edge on decode. Left
+# as-is those pixels were near-white, and the halo came back in the browser even
+# though the PNG on disk was clean. Flood the subject's own colours outward so there
+# is nothing bright left to bleed.
+known = (A > 0.35).astype(np.float32)
+filled = rgb.astype(np.float32) * known[..., None]
+for sigma in (4, 10, 24, 56, 120):
+    num = cv2.GaussianBlur(filled, (0, 0), sigma * SCALE / 2)
+    den = cv2.GaussianBlur(known, (0, 0), sigma * SCALE / 2)
+    avg = num / np.maximum(den, 1e-4)[..., None]
+    gap = known < 0.5
+    filled[gap] = avg[gap]
+    known = np.maximum(known, (den > 1e-3).astype(np.float32))
+rgb = np.where((A > 0.35)[..., None], rgb, filled)
 
-# ------------------------------------------------------------------ paint layer
-soft = base.filter(ImageFilter.MedianFilter(5)).filter(ImageFilter.MedianFilter(5))
-soft = soft.filter(ImageFilter.GaussianBlur(2.4))
-
-# Squash the blown highlight on the nose and cheek before quantising. Left alone the
-# quantiser spends a whole colour bin on it and the face gets a pale patch. This
-# touches the paint layer only, so catchlights in the eyes survive via the photo blend.
-_s = np.asarray(soft).astype(np.float32) / 255.0
-_L = _s @ np.array([0.2126, 0.7152, 0.0722], np.float32)
-_cap = np.where(_L > 0.58, 0.58 + (_L - 0.58) * 0.30, _L)
-_s = np.clip(_s * (_cap / np.maximum(_L, 1e-3))[..., None], 0, 1)
-soft = Image.fromarray((_s * 255).astype(np.uint8))
-
-flat = soft.quantize(colors=16, method=Image.MEDIANCUT, dither=Image.NONE).convert("RGB")
-flat = flat.filter(ImageFilter.GaussianBlur(1.5))
-F = np.asarray(flat).astype(np.float32) / 255.0
-
-# ------------------- detail mask: hand the photograph back where it matters
-g = np.asarray(gray).astype(np.float32) / 255.0
-gb = np.asarray(gray.filter(ImageFilter.GaussianBlur(5))).astype(np.float32) / 255.0
-D = np.clip((np.abs(g - gb) - 0.016) / 0.078, 0, 1)
-D = np.asarray(
-    Image.fromarray((D * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(2.5))
-).astype(np.float32) / 255.0
-D = np.clip(D * 1.6, 0, 1)[..., None] * 0.70                # 0.70 keeps it cartoon
-
-rgb = F * (1 - D) + B * D
-
-# ------------------------------------------------------------------- ink lines
-lg = np.asarray(flat.convert("L").filter(ImageFilter.GaussianBlur(1.5))).astype(np.float32)
-gx = np.zeros_like(lg)
-gy = np.zeros_like(lg)
-gx[:, 1:-1] = lg[:, 2:] - lg[:, :-2]
-gy[1:-1, :] = lg[2:, :] - lg[:-2, :]
-mag = np.sqrt(gx ** 2 + gy ** 2)
-lines = np.clip((mag - 11.0) / 26.0, 0, 1)
-lines = np.asarray(
-    Image.fromarray((lines * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(0.6))
-).astype(np.float32) / 255.0
-lines = np.clip(lines, 0, 1) * A
-ink = np.array([0.11, 0.09, 0.10], np.float32)
-rgb = rgb * (1 - lines[..., None] * 0.66) + ink * (lines[..., None] * 0.66)
-
-# ------------------------------------------------- warm light, gentle vignette
-lum = rgb @ np.array([0.2126, 0.7152, 0.0722], np.float32)
-hi = np.clip((lum - 0.40) / 0.50, 0, 1)[..., None]
-lo = np.clip((0.40 - lum) / 0.40, 0, 1)[..., None]
-rgb = rgb * (1 + (np.array([1.00, 0.965, 0.90], np.float32) - 1) * hi * 0.75)
-rgb = rgb * (1 + (np.array([0.92, 0.94, 1.00], np.float32) - 1) * lo * 0.35)
-
-yy, xx = np.mgrid[0:Ht, 0:Wt]
-r = np.sqrt(((xx - Wt * 0.5) / (Wt * 0.84)) ** 2 + ((yy - Ht * 0.42) / (Ht * 0.94)) ** 2)
-rgb *= np.clip(1.04 - 0.22 * np.clip(r, 0, 1.6) ** 2, 0, 1)[..., None]
-
-out = np.dstack([(np.clip(rgb, 0, 1) * 255).astype(np.uint8), (A * 255).astype(np.uint8)])
-Image.fromarray(out, "RGBA").save(OUT, optimize=True)
-print("wrote", OUT)
+rgba = np.dstack([np.clip(rgb, 0, 255).astype(np.uint8), (A * 255).astype(np.uint8)])
+Image.fromarray(rgba, "RGBA").resize((OUT_W, OUT_H), Image.LANCZOS).save(OUT, optimize=True)
+print("wrote", OUT, f"({OUT_W}x{OUT_H}) opaque {round(float((A > 0.5).mean()) * 100, 1)}%")
