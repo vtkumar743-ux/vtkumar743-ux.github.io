@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowUpRight, Lock } from "lucide-react";
 import { projects } from "@/content/projects";
 import { SectionHeading, Backdrop } from "@/components/ui";
-import ProjectCover from "@/components/ProjectCover";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "Projects — platforms designed, built and shipped",
@@ -30,10 +30,14 @@ export default function ProjectsPage() {
                 href={`/projects/${p.slug}`}
                 className="group flex h-full flex-col overflow-hidden rounded-card border border-line bg-surface shadow-card transition-colors duration-500 hover:border-white/[0.14]"
               >
-                <div className="relative aspect-[16/10] overflow-hidden">
-                  <div className="absolute inset-0 transition-transform duration-700 motion-safe:group-hover:scale-[1.03]">
-                    <ProjectCover slug={p.slug} hue={p.hue} />
-                  </div>
+                <div className="relative aspect-[16/9] overflow-hidden">
+                  <Image
+                    src={p.cover}
+                    alt={`${p.name} — ${p.tagline}`}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 560px"
+                    className="object-cover transition-transform duration-700 motion-safe:group-hover:scale-[1.03]"
+                  />
                   {p.visibility === "private" && (
                     <span className="absolute right-5 top-5 inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-black/40 px-3 py-1 font-mono text-[0.6rem] uppercase tracking-[0.14em] text-white/60 backdrop-blur-sm">
                       <Lock size={10} /> Private

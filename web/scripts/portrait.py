@@ -4,7 +4,7 @@ import numpy as np
 from PIL import Image, ImageFilter, ImageEnhance
 
 SRC = r"C:\Users\Venkat\Downloads\WhatsApp Image 2026-09-12 at 4.19.32 PM.jpeg"
-OUT = r"C:\VSC- AI\Venkat\web\public\img\portrait.png"
+OUT = r"C:\VSC- AI\Venkat\web\public\img\portrait-art.png"
 Wt, Ht = 1100, 1375
 
 im = Image.open(SRC).convert("RGB")

@@ -57,9 +57,14 @@ high, so the eyes, mouth and hair survive the stylisation.
 
 ## Project cover art
 
-Covers are drawn in code (`components/ProjectCover.tsx`), one abstract diagram per
-project. This is deliberate: most of the work was done under employment or for
-clients, so no real interface, logo or customer data is ever shown.
+```bash
+cd web && node scripts/covers.mjs     # needs Chrome installed
+```
+Each cover is an abstract product mockup written in HTML and screenshotted in Chrome
+at 3840x2160, then saved as WebP into `public/img/projects/`. They are mockups, not
+screenshots: most of this work was done under employment or for clients, so no real
+interface, logo or customer data appears in any of them. Edit the `ui` object in the
+script to change a layout, or `PROJECTS` to change a hue or caption.
 
 ## Anonymisation rule
 

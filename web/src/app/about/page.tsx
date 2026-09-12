@@ -59,7 +59,7 @@ export default function AboutPage() {
             <div className="overflow-hidden rounded-[32px] border border-line bg-gradient-to-b from-surface to-bg-2 shadow-lift">
               <div className="relative aspect-[4/5]">
                 <Image
-                  src="/img/portrait.png"
+                  src="/img/portrait-art.png"
                   alt={site.name}
                   fill
                   priority

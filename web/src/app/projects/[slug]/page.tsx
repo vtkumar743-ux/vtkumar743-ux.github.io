@@ -5,7 +5,7 @@ import { ArrowLeft, Lock, ExternalLink } from "lucide-react";
 import { GithubIcon } from "@/components/BrandIcons";
 import { projects } from "@/content/projects";
 import { Backdrop, Button, Chip, Eyebrow } from "@/components/ui";
-import ProjectCover from "@/components/ProjectCover";
+import Image from "next/image";
 
 export function generateStaticParams() {
   return projects.map((p) => ({ slug: p.slug }));
@@ -73,8 +73,15 @@ export default async function ProjectPage({ params }: PageProps<"/projects/[slug
         </header>
 
         <div className="reveal mt-12 overflow-hidden rounded-card border border-line shadow-lift">
-          <div className="aspect-[16/9]">
-            <ProjectCover slug={p.slug} hue={p.hue} />
+          <div className="relative aspect-[16/9]">
+            <Image
+              src={p.cover}
+              alt={`${p.name} — ${p.tagline}`}
+              fill
+              priority
+              sizes="(max-width: 1220px) 100vw, 1130px"
+              className="object-cover"
+            />
           </div>
         </div>
 

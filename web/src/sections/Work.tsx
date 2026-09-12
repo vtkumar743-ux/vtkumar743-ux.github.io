@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowUpRight, Lock } from "lucide-react";
 import { featuredProjects } from "@/content/projects";
 import { SectionHeading, Button } from "@/components/ui";
-import ProjectCover from "@/components/ProjectCover";
+import Image from "next/image";
 
 export default function Work() {
   return (
@@ -22,12 +22,21 @@ export default function Work() {
             <li key={p.slug} className="sticky-card" style={{ top: `calc(var(--card-stick) + ${i * 14}px)` }}>
               <article className="group overflow-hidden rounded-card border border-line bg-surface shadow-card transition-colors duration-500 hover:border-white/[0.14]">
                 <Link href={`/projects/${p.slug}`} className="block">
-                  {/* w-full is required: with only aspect-ratio + max-h the box
-                      shrinks its width to keep the ratio instead of cropping. */}
-                  <div className="relative w-full aspect-[4/3] max-h-[46vh] overflow-hidden sm:aspect-[16/9]">
-                    <div className="absolute inset-0 transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] motion-safe:group-hover:scale-[1.03]">
-                      <ProjectCover slug={p.slug} hue={p.hue} />
-                    </div>
+                  {/* 16:9 everywhere — the cover art is authored at that ratio, so any
+                      other box would crop the mockup out of the frame. */}
+                  <div className="relative w-full aspect-[16/9] overflow-hidden">
+                    <Image
+                      src={p.cover}
+                      alt={`${p.name} — ${p.tagline}`}
+                      fill
+                      priority={i === 0}
+                      sizes="(max-width: 1220px) 100vw, 1130px"
+                      className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] motion-safe:group-hover:scale-[1.03]"
+                    />
+                    <div
+                      aria-hidden
+                      className="pointer-events-none absolute inset-0 bg-gradient-to-t from-surface/80 via-transparent to-transparent"
+                    />
                     <span className="absolute left-6 top-6 rounded-full border border-white/15 bg-black/40 px-3 py-1 font-mono text-[0.66rem] tracking-[0.14em] text-white/70 backdrop-blur-sm">
                       {String(i + 1).padStart(2, "0")} / {p.year}
                     </span>
