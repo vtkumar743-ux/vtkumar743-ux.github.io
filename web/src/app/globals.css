@@ -1,0 +1,155 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------
+   Theme — dark only. Two accents: periwinkle (primary) + amber (data).
+------------------------------------------------------------------- */
+@theme {
+  --color-bg: #0f1012;
+  --color-bg-2: #0a0b0d;
+  --color-surface: #16181d;
+  --color-surface-2: #1c1f26;
+  --color-line: #262932;
+  --color-line-2: #343845;
+  --color-text: #f2f3f5;
+  --color-muted: #9aa0ac;
+  --color-muted-2: #6f7683;
+  --color-accent: #7b8cff;
+  --color-accent-2: #ffc46b;
+
+  --font-display: var(--font-sora), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono-jb), ui-monospace, SFMono-Regular, monospace;
+
+  --radius-card: 24px;
+  --radius-xl2: 32px;
+
+  --shadow-card: 0 1px 0 0 #ffffff08 inset, 0 24px 60px -24px #00000099;
+  --shadow-lift: 0 1px 0 0 #ffffff0d inset, 0 40px 90px -30px #000000cc;
+
+  --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root {
+  --shell-x: clamp(20px, 4vw, 48px);
+  --card-stick: 6.5rem;
+  --header-h: 68px;
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-h) + 16px);
+  -webkit-text-size-adjust: 100%;
+  tab-size: 4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--color-accent) 32%, transparent);
+  color: var(--color-text);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* ------------------------------------------------------------------
+   Layout primitives
+------------------------------------------------------------------- */
+@utility shell {
+  width: 100%;
+  max-width: 1220px;
+  margin-inline: auto;
+  padding-inline: var(--shell-x);
+}
+
+@utility section {
+  padding-block: clamp(4.5rem, 11vw, 8.5rem);
+}
+
+@utility max-w-lede {
+  max-width: 62ch;
+}
+
+/* Film grain — pure CSS, no asset request */
+@utility grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.42'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  mix-blend-mode: overlay;
+}
+
+/* Hairline grid backdrop — our own texture, distinct from the reference */
+@utility gridlines {
+  background-image:
+    linear-gradient(to right, #ffffff0a 1px, transparent 1px),
+    linear-gradient(to bottom, #ffffff0a 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse 70% 55% at 50% 0%, #000 20%, transparent 78%);
+}
+
+@utility hairline {
+  border-top: 1px solid var(--color-line);
+}
+
+/* Marquee */
+@utility marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 38s linear infinite;
+}
+
+@keyframes marquee {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track { animation: none; }
+}
+
+/* Entrance reveal. Progressive enhancement: elements are visible by default and
+   only start hidden once the inline bootstrap script has added `.js` to <html>,
+   so a failed or blocked script can never leave the page blank. */
+@utility reveal {
+  transition:
+    opacity 0.7s var(--ease-smooth),
+    transform 0.7s var(--ease-smooth);
+}
+
+html.js .reveal {
+  opacity: 0;
+  transform: translateY(18px);
+}
+
+html.js .reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.js .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* Sticky project stack */
+@utility sticky-card {
+  position: sticky;
+  top: var(--card-stick);
+}
