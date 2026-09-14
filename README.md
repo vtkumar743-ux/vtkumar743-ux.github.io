@@ -98,17 +98,22 @@ social card point at it.
 
 Two rules keep the first paint fast; breaking either costs about a second.
 
-- **Nothing above the fold may use `.reveal`.** That class is hidden until React
-  hydrates. It once held the first screen blank for 1.2s while the content sat in the
-  document. Above-the-fold blocks use `.rise`, a plain CSS keyframe that runs on
-  parse. `SectionHeading` takes an `immediate` prop for the same reason. The test: load
-  the page with JavaScript disabled and the first screen must look finished.
+- **No entrance animation may hide content before the bundle arrives.** `.rise` is a
+  plain CSS keyframe that runs on parse, used above the fold; `SectionHeading` takes an
+  `immediate` prop to switch to it. `.reveal` hides nothing by CSS: `Reveal.tsx` marks
+  only the elements still below the viewport once it hydrates. An earlier version hid
+  all 21 marked elements until hydration, which left the first screen blank for 1.2s
+  and the rest of the page blank while scrolling on a phone. The test: load with
+  JavaScript disabled, scroll the whole page, and nothing may be missing.
 - **Only genuinely above-the-fold images get `priority`.** The first project cover
   carried it despite sitting far down the page, so a 42 KB image competed with the
   hero for bandwidth on a phone.
 
-Images are served as authored, since a static export has no optimiser. The portrait is
-WebP at 97 KB; as a PNG it was 1030 KB and over half the page.
+- **Images are sized for delivery, not for archive.** A static export has no
+  optimiser, so whatever is committed is what a phone downloads and decodes. The
+  portrait is WebP at 97 KB, down from 1030 KB as a PNG. Project covers render at
+  2400x1350 rather than 4K: the card is about 1130px wide, and five 8-megapixel images
+  cost a phone far more in decode than in bytes.
 
 Throttled mobile timings on a busy machine are too noisy to optimise against: three
 runs of an identical build gave 2.4s, 3.4s and 5.0s. Prefer deterministic signals,
