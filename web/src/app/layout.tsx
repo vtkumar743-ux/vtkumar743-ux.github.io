@@ -19,14 +19,14 @@ const inter = Inter({
   display: "swap",
 });
 
-// Not preloaded: this face is only used for small labels and figures, so it should
-// not compete with the hero for bandwidth on a phone. `swap` covers the gap.
+// Preloaded deliberately: mono is used in the hero itself (the availability chip,
+// the role line, the credential line), so deferring it only trades a font request
+// for a visible swap and reflow on the first screen.
 const mono = JetBrains_Mono({
   variable: "--font-mono-jb",
   subsets: ["latin"],
-  weight: ["400", "500", "700"],
+  weight: ["400", "500", "700"],   // 700 carries the large figures; do not drop it
   display: "swap",
-  preload: false,
 });
 
 const title = `Full-Stack Software Engineer & UI/UX Developer in Bangalore | ${site.short}`;
