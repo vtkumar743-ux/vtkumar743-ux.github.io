@@ -71,6 +71,7 @@ export default function Header() {
               <li key={n.label}>
                 <Link
                   href={n.href}
+                  prefetch={false}
                   className="rounded-full px-3.5 py-2 text-sm text-muted transition-colors duration-200 hover:bg-white/[0.06] hover:text-text"
                 >
                   {n.label}
@@ -91,6 +92,7 @@ export default function Header() {
 
           <Link
             href="/#contact"
+            prefetch={false}
             onClick={() => setOpen(false)}
             className="group inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-bg transition-colors duration-300 hover:bg-text"
           >
@@ -110,6 +112,7 @@ export default function Header() {
               <Link
                 key={n.label}
                 href={n.href}
+                prefetch={false}
                 onClick={() => setOpen(false)}
                 className="border-b border-line py-4 font-display text-2xl font-light text-text"
               >

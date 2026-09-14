@@ -59,12 +59,13 @@ export default function Footer() {
               <Link
                 key={n.label}
                 href={n.href}
+                prefetch={false}
                 className="text-sm text-muted transition-colors hover:text-text"
               >
                 {n.label}
               </Link>
             ))}
-            <Link href="/#contact" className="text-sm text-muted transition-colors hover:text-text">
+            <Link href="/#contact" prefetch={false} className="text-sm text-muted transition-colors hover:text-text">
               Contact
             </Link>
           </nav>
