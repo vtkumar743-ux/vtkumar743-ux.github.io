@@ -17,6 +17,7 @@ export default function ProjectsPage() {
       <Backdrop />
       <div className="shell">
         <SectionHeading
+          immediate
           eyebrow="Index"
           light="All"
           bold="Projects"

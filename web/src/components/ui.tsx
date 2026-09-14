@@ -84,17 +84,21 @@ export function SectionHeading({
   bold,
   sub,
   align = "center",
+  immediate = false,
 }: {
   eyebrow?: string;
   light: string;
   bold: string;
   sub?: string;
   align?: "left" | "center";
+  /** Above the fold? Use the CSS animation, which does not wait for hydration. */
+  immediate?: boolean;
 }) {
   return (
     <div
       className={cx(
-        "reveal flex flex-col gap-4",
+        immediate ? "rise" : "reveal",
+        "flex flex-col gap-4",
         align === "center" && "mx-auto max-w-2xl items-center text-center",
       )}
     >

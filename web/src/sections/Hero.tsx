@@ -23,7 +23,7 @@ export default function Hero() {
 
       <div className="shell">
         {/* ------------------------------------------------------ device frame */}
-        <div className="reveal relative mx-auto w-full max-w-[600px]">
+        <div className="rise relative mx-auto w-full max-w-[600px]">
           <div className="relative rounded-[54px] bg-gradient-to-b from-[#4a4f5e] via-[#23262e] to-[#14161a] p-[4px] shadow-lift">
             {/* side buttons */}
             <span className="absolute -left-[3px] top-[20%] h-14 w-[3px] rounded-l-full bg-gradient-to-b from-[#565b6b] to-[#2a2d36]" />
@@ -74,7 +74,7 @@ export default function Hero() {
         </div>
 
         {/* ------------------------------------------------------------- copy */}
-        <div className="reveal mx-auto mt-14 flex max-w-[720px] flex-col items-center gap-6 text-center">
+        <div className="rise mx-auto mt-14 flex max-w-[720px] flex-col items-center gap-6 text-center" style={{ animationDelay: "90ms" }}>
           <div className="flex flex-wrap items-center justify-center gap-3">
             <span className="inline-flex items-center gap-2 rounded-full border border-accent/25 bg-accent/[0.08] px-3.5 py-1.5 font-mono text-[0.66rem] uppercase tracking-[0.16em] text-accent">
               <span className="relative flex h-1.5 w-1.5">

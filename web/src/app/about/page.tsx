@@ -16,7 +16,7 @@ export default function AboutPage() {
       <section className="relative overflow-hidden pb-20 pt-32 sm:pt-40">
         <Backdrop />
         <div className="shell grid items-start gap-12 lg:grid-cols-[1.2fr_0.8fr] lg:gap-16">
-          <div className="reveal flex flex-col gap-7">
+          <div className="rise flex flex-col gap-7">
             <Eyebrow>About</Eyebrow>
             <h1 className="font-display text-[clamp(2.2rem,7vw,3.8rem)] font-semibold leading-[1.05] tracking-[-0.04em]">
               I design the interface and build everything behind it.
@@ -55,7 +55,7 @@ export default function AboutPage() {
             </div>
           </div>
 
-          <div className="reveal relative mx-auto w-full max-w-[340px]">
+          <div className="rise relative mx-auto w-full max-w-[340px]" style={{ animationDelay: "90ms" }}>
             <div className="overflow-hidden rounded-[32px] border border-line bg-gradient-to-b from-surface to-bg-2 shadow-lift">
               <div className="relative aspect-[4/5]">
                 <Image

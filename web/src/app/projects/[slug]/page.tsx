@@ -39,7 +39,7 @@ export default async function ProjectPage({ params }: PageProps<"/projects/[slug
           <ArrowLeft size={15} /> All projects
         </Link>
 
-        <header className="reveal mt-8 flex flex-col gap-6">
+        <header className="rise mt-8 flex flex-col gap-6">
           <Eyebrow>
             {p.year} · {p.role}
           </Eyebrow>
@@ -72,7 +72,7 @@ export default async function ProjectPage({ params }: PageProps<"/projects/[slug
           </div>
         </header>
 
-        <div className="reveal mt-12 overflow-hidden rounded-card border border-line shadow-lift">
+        <div className="rise mt-12 overflow-hidden rounded-card border border-line shadow-lift" style={{ animationDelay: "90ms" }}>
           <div className="relative aspect-[16/9]">
             <Image
               src={p.cover}
