@@ -164,28 +164,29 @@ body {
   }
 }
 
-/* Entrance reveal for content BELOW the fold, driven by IntersectionObserver.
-   Progressive enhancement: elements are visible by default and only start hidden
-   once the inline bootstrap script has added `.js` to <html>, so a failed or blocked
-   script can never leave the page blank. */
+/* Entrance reveal for content BELOW the fold.
+   Nothing is hidden by default. Reveal.tsx marks only the elements still below the
+   viewport with `.pending` once it hydrates, so a slow or failed bundle leaves the
+   page fully readable rather than blank. */
 @utility reveal {
   transition:
     opacity 0.7s var(--ease-smooth),
     transform 0.7s var(--ease-smooth);
 }
 
-html.js .reveal {
+.reveal.pending {
   opacity: 0;
   transform: translateY(18px);
 }
 
-html.js .reveal.is-in {
+.reveal.pending.is-in {
   opacity: 1;
   transform: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html.js .reveal {
+  .reveal,
+  .reveal.pending {
     opacity: 1;
     transform: none;
     transition: none;

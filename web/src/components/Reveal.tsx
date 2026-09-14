@@ -3,26 +3,22 @@
 import { useEffect } from "react";
 
 /**
- * Flips `.is-in` on any `.reveal` element as it enters the viewport.
- * One observer for the whole document; re-scans on route change via MutationObserver.
+ * Scroll entrance animation, as a true enhancement.
+ *
+ * The earlier version hid every `.reveal` element via CSS until this component
+ * hydrated. On a phone that left the whole page below the first screen blank for
+ * several seconds, so scrolling down during load showed empty space.
+ *
+ * Now nothing is hidden by CSS. On hydration this marks only the elements that are
+ * still below the viewport and animates those in as they arrive. Anything already on
+ * screen is left alone, and if the bundle never loads the page simply shows
+ * everything, which is the correct fallback.
  */
 export default function Reveal() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    // Hydration succeeded, so the no-JS failsafe in <head> is no longer needed.
-    const w = window as Window & { __revealFallback?: number };
-    if (w.__revealFallback) {
-      clearTimeout(w.__revealFallback);
-      w.__revealFallback = undefined;
-    }
-    document.documentElement.classList.add("js");
-
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) {
-      document.querySelectorAll(".reveal").forEach((el) => el.classList.add("is-in"));
-      return;
-    }
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const io = new IntersectionObserver(
       (entries) => {
@@ -33,14 +29,24 @@ export default function Reveal() {
           }
         }
       },
-      { rootMargin: "0px 0px -12% 0px", threshold: 0.08 },
+      { rootMargin: "0px 0px -10% 0px", threshold: 0.05 },
     );
 
-    const scan = () =>
-      document.querySelectorAll(".reveal:not(.is-in)").forEach((el) => io.observe(el));
+    const arm = () => {
+      const fold = window.innerHeight * 1.05;
+      for (const el of document.querySelectorAll<HTMLElement>(".reveal:not(.armed)")) {
+        el.classList.add("armed");
+        // Only hide what the reader cannot see yet; hiding anything on screen would
+        // make content that had already painted disappear.
+        if (el.getBoundingClientRect().top > fold) {
+          el.classList.add("pending");
+          io.observe(el);
+        }
+      }
+    };
 
-    scan();
-    const mo = new MutationObserver(scan);
+    arm();
+    const mo = new MutationObserver(arm);
     mo.observe(document.body, { childList: true, subtree: true });
 
     return () => {

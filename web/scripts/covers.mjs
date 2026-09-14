@@ -2,8 +2,12 @@
  * Renders one 4K cover image per project.
  *
  * Each cover is an abstract product mockup drawn in HTML and screenshotted in Chrome
- * at 3840x2160. Nothing here is a real screenshot: no client interface, logo, or
+ * at 2400x1350. Nothing here is a real screenshot: no client interface, logo, or
  * customer data appears in any of them.
+ *
+ * Not 4K. The card is about 1130px wide, so 2400 covers a retina desktop. At 3840
+ * each image was 8.3 megapixels and a phone had to decode five of them while
+ * scrolling, which cost far more than the bytes did.
  *
  *   node scripts/covers.mjs
  */
@@ -235,14 +239,14 @@ const browser = await puppeteer.launch({
 
 for (const p of PROJECTS) {
   const tab = await browser.newPage();
-  // 1920x1080 at 2x device pixels renders 3840x2160 with crisp text
-  await tab.setViewport({ width: 1920, height: 1080, deviceScaleFactor: 2 });
+  // 1920x1080 at 1.25x device pixels renders 2400x1350 with crisp text
+  await tab.setViewport({ width: 1920, height: 1080, deviceScaleFactor: 1.25 });
   await tab.setContent(page(p), { waitUntil: "networkidle0" });
   await new Promise((r) => setTimeout(r, 350));
   const file = path.join(OUT, `${p.slug}.webp`);
   await tab.screenshot({ path: file, type: "webp", quality: 88 });
   const kb = Math.round(fs.statSync(file).size / 1024);
-  console.log(`${p.slug.padEnd(10)} 3840x2160  ${kb} KB`);
+  console.log(`${p.slug.padEnd(10)} 2400x1350  ${kb} KB`);
   await tab.close();
 }
 

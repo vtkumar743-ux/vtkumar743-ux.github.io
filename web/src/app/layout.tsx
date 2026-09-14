@@ -85,24 +85,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      // The bootstrap script below adds `js` to this element before React hydrates,
-      // so its class list legitimately differs from the server HTML.
-      suppressHydrationWarning
       className={`${sora.variable} ${inter.variable} ${mono.variable} h-full antialiased`}
     >
-      <head>
-        {/* Runs before paint: marks JS as available so reveal animations may hide
-            content. Without it everything stays visible. */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              `var d=document.documentElement;d.classList.add('js');` +
-              // If the bundle never hydrates, drop back to everything visible.
-              // Reveal clears this timer as soon as its observer is attached.
-              `window.__revealFallback=setTimeout(function(){d.classList.remove('js')},2500);`,
-          }}
-        />
-      </head>
       <body className="min-h-full flex flex-col bg-bg text-text">
         <a
           href="#main"
