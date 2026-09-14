@@ -19,11 +19,14 @@ const inter = Inter({
   display: "swap",
 });
 
+// Not preloaded: this face is only used for small labels and figures, so it should
+// not compete with the hero for bandwidth on a phone. `swap` covers the gap.
 const mono = JetBrains_Mono({
   variable: "--font-mono-jb",
   subsets: ["latin"],
   weight: ["400", "500", "700"],
   display: "swap",
+  preload: false,
 });
 
 const title = `Full-Stack Software Engineer & UI/UX Developer in Bangalore | ${site.short}`;

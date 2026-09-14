@@ -29,7 +29,6 @@ export default function Work() {
                       src={p.cover}
                       alt={`${p.name} — ${p.tagline}`}
                       fill
-                      priority={i === 0}
                       sizes="(max-width: 1220px) 100vw, 1130px"
                       className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] motion-safe:group-hover:scale-[1.03]"
                     />
