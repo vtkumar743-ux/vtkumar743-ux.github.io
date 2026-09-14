@@ -10,7 +10,7 @@ export default function Footer() {
       <div className="shell py-16">
         <div className="grid gap-12 md:grid-cols-[1.3fr_1fr_1fr]">
           <div className="flex flex-col gap-5">
-            <Link href="/" className="font-display text-lg font-semibold tracking-tight">
+            <Link href="/" prefetch={false} className="font-display text-lg font-semibold tracking-tight">
               <span className="text-accent">.</span>venkat
             </Link>
             <p className="max-w-xs text-sm leading-relaxed text-muted">

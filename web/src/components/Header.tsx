@@ -48,8 +48,11 @@ export default function Header() {
           scrolled ? "pt-2.5 pb-1" : "pt-5 pb-2",
         )}
       >
+        {/* prefetch={false}: this prefetched the home route's payload (59 KB) on every
+            page load, including on the home page itself. */}
         <Link
           href="/"
+          prefetch={false}
           onClick={() => setOpen(false)}
           className="font-display text-lg font-bold tracking-tight"
         >
