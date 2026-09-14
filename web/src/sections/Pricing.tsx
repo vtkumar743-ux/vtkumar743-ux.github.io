@@ -2,39 +2,43 @@
 
 import { useState } from "react";
 import { Check } from "lucide-react";
-import { pricing } from "@/content/services";
+import { packages } from "@/content/services";
 import { SectionHeading, Button, TabTrack } from "@/components/ui";
 
-export default function Pricing() {
+export default function Packages() {
   const [active, setActive] = useState(0);
-  const p = pricing[active];
+  const p = packages[active];
 
   return (
-    <section id="pricing" aria-labelledby="pricing-heading" className="section border-t border-line bg-bg-2">
+    <section
+      id="pricing"
+      aria-labelledby="packages-heading"
+      className="section border-t border-line bg-bg-2"
+    >
       <div className="shell">
-        <div id="pricing-heading">
+        <div id="packages-heading">
           <SectionHeading
             eyebrow="Freelance engagements"
-            light="Pricing"
-            bold="Plans"
-            sub="Fixed-scope packages rather than an hourly rate, so you know the number before the work starts. Hiring full-time instead? Skip this and email me."
+            light="How I"
+            bold="Package Work"
+            sub="Fixed scope rather than an hourly rate, so you know exactly what is being built before it starts. Tell me what you need and I will quote it."
           />
         </div>
 
         <div className="mt-12">
           <TabTrack
-            items={pricing}
+            items={packages}
             active={active}
             onSelect={setActive}
-            idPrefix="pr"
-            label="Pricing packages"
+            idPrefix="pk"
+            label="Engagement types"
           />
         </div>
 
         <div
           role="tabpanel"
-          id={`pr-panel-${p.key}`}
-          aria-labelledby={`pr-tab-${p.key}`}
+          id={`pk-panel-${p.key}`}
+          aria-labelledby={`pk-tab-${p.key}`}
           className="mt-6 grid gap-8 rounded-card border border-line bg-surface p-8 shadow-card lg:grid-cols-[1fr_1fr] lg:gap-14 lg:p-12"
         >
           <div className="flex flex-col gap-5">
@@ -42,17 +46,22 @@ export default function Pricing() {
               {p.title}
             </h3>
             <p className="max-w-lede leading-[1.7] text-muted">{p.desc}</p>
-            <div className="mt-2">
-              <p className="font-display text-[clamp(2rem,6vw,2.8rem)] font-semibold leading-none text-text">
-                {p.inr}
+
+            <div className="mt-2 flex flex-col gap-1.5">
+              <p className="font-display text-[clamp(1.6rem,4.5vw,2.2rem)] font-semibold leading-none text-text">
+                Contact for pricing
               </p>
-              <p className="mt-2 font-mono text-sm text-accent">{p.usd}</p>
+              <p className="text-sm text-muted">
+                Quoted per project, in writing, before any work begins.
+              </p>
             </div>
+
             <p className="font-mono text-[0.7rem] uppercase tracking-[0.16em] text-muted-2">
               {p.duration}
             </p>
+
             <div className="mt-2">
-              <Button href="/#contact">Start a project</Button>
+              <Button href="/#contact">Request a quote</Button>
             </div>
           </div>
 
@@ -67,9 +76,8 @@ export default function Pricing() {
         </div>
 
         <p className="mt-6 max-w-lede text-xs leading-relaxed text-muted-2">
-          These are starting ranges based on typical scope. The final quote depends on screens,
-          integrations and content, and I confirm it in writing, with a timeline, before any work
-          begins.
+          Every quote depends on screens, integrations and content. I confirm the number and the
+          timeline in writing before starting, and it does not move unless the scope does.
         </p>
       </div>
     </section>

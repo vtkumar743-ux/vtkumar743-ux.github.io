@@ -37,14 +37,12 @@ export const services = [
   },
 ] as const;
 
-export const pricing = [
+export const packages = [
   {
     key: "site",
     tab: "Website",
     title: "Business Website",
     desc: "A credible presence for a business that does not have one yet.",
-    inr: "₹25,000 – ₹55,000",
-    usd: "$300 – $650",
     duration: "About 2 weeks",
     features: [
       "Five to seven designed sections",
@@ -59,8 +57,6 @@ export const pricing = [
     tab: "Web App / MVP",
     title: "Web App or MVP",
     desc: "The first real version of a product, built to be extended rather than thrown away.",
-    inr: "₹90,000 – ₹2,20,000",
-    usd: "$1,100 – $2,600",
     duration: "About 6–10 weeks",
     features: [
       "Auth, roles and permissions",
@@ -75,8 +71,6 @@ export const pricing = [
     tab: "AI Integration",
     title: "AI Layer",
     desc: "An assistant bolted onto a product you already run, with guardrails.",
-    inr: "₹70,000 – ₹1,80,000",
-    usd: "$850 – $2,100",
     duration: "About 4–8 weeks",
     features: [
       "Tool-calling against your existing API",
@@ -91,8 +85,6 @@ export const pricing = [
     tab: "Maintenance",
     title: "Ongoing Support",
     desc: "For a product that is live and needs someone who knows it.",
-    inr: "₹15,000 – ₹40,000 / month",
-    usd: "$180 – $480 / month",
     duration: "Rolling, cancel any month",
     features: [
       "Bug fixes and small features",

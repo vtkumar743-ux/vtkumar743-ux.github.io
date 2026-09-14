@@ -48,7 +48,7 @@ export default function Services() {
               <div className="mt-2 flex flex-col gap-3 sm:flex-row">
                 <Button href="/#contact">Start now</Button>
                 <Button href="/#pricing" variant="ghost">
-                  See pricing
+                  See packages
                 </Button>
               </div>
             </div>
